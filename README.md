@@ -1,1 +1,1 @@
-# stepwise_predictor_selection
+# Stepwise Predictor Selection Method 

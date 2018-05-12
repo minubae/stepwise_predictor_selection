@@ -1,10 +1,10 @@
 # Stepwise Predictor Selection Method
 
-• Title: Stepwise Predictors Selection Method
-• Course: Math B7800 - Advanced Mathematical Statistics II
-• Instructor: Professor Shirshendu Chatterjee
-• Due Date: May/15/2018, Wednesday
-• Author: Minwoo Bae (minubae.math@gmail.com)
+• Title: Stepwise Predictors Selection Method \\
+• Course: Math B7800 - Advanced Mathematical Statistics II \\
+• Instructor: Professor Shirshendu Chatterjee \\
+• Due Date: May/15/2018, Wednesday \\
+• Author: Minwoo Bae (minubae.math@gmail.com) \\
 • Institute: The Department of Mathematics, City College of New York, CUNY
 
 ## Project Description:

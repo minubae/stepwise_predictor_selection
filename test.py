@@ -38,7 +38,7 @@ end = 20 #9358
 ###################################################################################
 
 csv_url = 'AirQualityUCI/AirQualityUCI.csv'
-data = np.genfromtxt(csv_url, delimiter=';', usecols = range(2,15), skip_header = 1, dtype=float, loose = True, max_rows = end)
+data = np.genfromtxt(csv_url, delimiter=';', usecols = range(2,15), skip_header = 1, dtype=float, max_rows = end)
 data = np.array(data, dtype=float)
 
 # Get the Benzene concentration as a Response vector Y from the data
@@ -284,12 +284,19 @@ def getAdjustedRatioRegressionSS(data, response, observations, variables):
 
 print('Adjusted_R2: ', getAdjustedRatioRegressionSS(Z, Y, n, r))
 
+D = np.array([[1, 10, 11, 12],[1, 13, 14, 15],[1, 16, 17, 18], [1, 19, 20, 21]])
+index = 3
+print(D)
 
+D1 = np.delete(D,index,axis=1)
+print(D1)
 
-
-
-
-
+q = D1.shape[1]-1
+r1 = D.shape[1]-1
+n1 = D.shape[0]
+print('n1: ', n1)
+print('r1: ', r1)
+print('q: ', q)
 
 
 

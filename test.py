@@ -27,69 +27,128 @@ import numpy as np
 from numpy import transpose as T
 from numpy.linalg import inv
 from numpy import matmul as mult
+from numpy import dot as dot
 
 begin = 1
 end = 5 #9358
 data = np.genfromtxt('AirQualityUCI/AirQualityUCI.csv', delimiter=';', usecols = range(2,15), skip_header = 1, dtype=float, loose = True, max_rows = end) #, max_rows = 10
-
 data = np.array(data, dtype=float)
-# print('data')
-# print(data)
-# p = data.shape[1]
 
 Y = data[begin:end,3]
 n = Y.shape[0]
 print('n:', n)
-print('Y:', Y)
+# print('Y:', Y)
 # Z = data[0:n,10:12]
 # Z = data[0:n,[0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12]]
 
 Z = np.delete(data,3,axis=1)[begin:end,] # axis=1 -- select a column, axis=0 -- select a row.
 r = Z.shape[1]
-# print('Z:')
-# print(Z)
-# print(Z.T)
-# print(np.ones(n))
-# x = np.array([[1, 2], [3, 4]])
-# print(inv(x))
-# print(mul(Z, Z.T))
+# print('r: ', r)
 Z = np.insert(Z, 0, np.ones(n), axis=1)
 print('Z:')
 print(Z)
 
-
 def getBetaHat(data, response):
-    result = 0
-    result = mult(mult(inv(mult(Z.T, Z)), Z.T), Y)
+    z = 0; y = 0; beta_hat=0
+    z = data
+    y = response
 
-    return result
+    beta_hat = inv(z.T.dot(z)).dot(z.T).dot(y)
 
+    return beta_hat
+
+# print('Beta_hat:')
 # print(getBetaHat(Z, Y))
 
-
 def getProjectionMatrix(data):
-    result = 0
-    result = mult(Z, mult(inv(mult(Z.T, Z)), Z.T))
-    return result
+    z = 0
+    Pz = 0
+    z = data
+    Pz = z.dot(inv(z.T.dot(z))).dot(z.T)
+    return Pz
 
 # print(getProjectionMatrix(Z))
 
 def getPredictedResponse(data, response):
-    Pz = 0; z = 0; y = 0; result1 = 0; result2 = 0
+    Pz = 0; z = 0; y = 0; y_hat = 0; y_hat1 = 0
 
     z = data
     y = response
     Pz = getProjectionMatrix(z)
     beta_hat = getBetaHat(z, y)
 
-    result1 = mult(Pz, y)
-    result2 = mult(z, beta_hat)
-
+    y_hat =  Pz.dot(y)
+    y_hat1 = z.dot(beta_hat)
     # print('result1: ')
-    # print(result1)
+    # print(y_hat)
     # print('result2: ')
-    # print(result2)
-    return result1
+    # print(y_hat1)
+    return y_hat
 
 print('Y_hat:')
 print(getPredictedResponse(Z, Y))
+
+def getResidualSS(data, response):
+
+    resSS=0;z=0;y=0;
+    n=0;eye=0;Pz=0
+
+    z = data
+    y = response
+    n = y.shape[0]
+    eye = np.eye(n)
+    Pz = getProjectionMatrix(z)
+
+    resSS = y.T.dot(eye-Pz).dot(y)
+
+    return resSS
+
+print(getResidualSS(Z,Y))
+
+
+def getUnbiasedResidualSS(data, response, observations, variables):
+
+    z=0;y=0;n=0;r=0;s2=0
+    z = data; y = response
+    n = observations; r = variables
+
+    residualSS = getResidualSS(z, y)
+    s2 = residualSS/(n-r-1)
+
+    return s2
+
+print(getUnbiasedResidualSS(Z, Y, n, r))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#print('Hello!')

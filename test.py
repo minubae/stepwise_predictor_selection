@@ -27,9 +27,13 @@
 ###########################################################################################################################
 import numpy as np
 from numpy import transpose as T
+from scipy.stats import f
 from numpy.linalg import inv
-from numpy import matmul as mult
-from numpy import dot as dot
+from numpy import dot
+import matplotlib.pyplot as plt
+# from numpy import matmul as mult
+# from numpy.random import f
+
 
 begin = 1
 end = 20 #9358
@@ -46,7 +50,7 @@ Y = data[begin:end,3]
 
 # Get the number of observations
 n = Y.shape[0]
-print('n:', n)
+# print('n:', n)
 
 # Get a Data Matrix Z from the data
 Z = np.delete(data,3,axis=1)[begin:end,] # axis=1 -- select a column, axis=0 -- select a row.
@@ -79,6 +83,12 @@ def getBetaHat(data, response):
 # print('Beta_hat:')
 # print(getBetaHat(Z, Y))
 
+def isInvertible(data):
+    z = 0
+    z = data
+    return z.shape[0] == z.shape[1] and np.linalg.matrix_rank(z) == z.shape[0]
+
+
 ###################################################################################
 # Function for computing Projection Matrix, i.e., Pz
 ###################################################################################
@@ -89,8 +99,16 @@ def getProjectionMatrix(data):
     # Set variables
     z = data
 
+    # if isInvertible(z) == True:
+
     # Compute the Projection Matrix Pz
     Pz = z.dot(inv(z.T.dot(z))).dot(z.T)
+
+    # else:
+
+        # print('The matrix is not invertible')
+        # break
+
     return Pz
 
 # print(getProjectionMatrix(Z))
@@ -152,17 +170,17 @@ def getResidualSS(data, response, observations):
     z = data; y = response; n = observations
 
     # Compute the n x n identity matrix
-    eye = np.eye(n)
+    I = np.eye(n)
 
     # Get the Projection Matrix Pz
     Pz = getProjectionMatrix(z)
 
     # Compute the Residual Sum of Squares
-    resSS = y.T.dot(eye-Pz).dot(y)
+    resSS = y.T.dot(I-Pz).dot(y)
 
     return resSS
 
-print('ResidualSS: ', getResidualSS(Z,Y,n))
+# print('ResidualSS: ', getResidualSS(Z,Y,n))
 
 ###################################################################################
 # Function for computing Unbiased Residual Sum of Squares
@@ -183,7 +201,7 @@ def getUnbiasedResidualSS(data, response, observations, variables):
 
     return s2
 
-print('UnbiasedResidualSS: ', getUnbiasedResidualSS(Z, Y, n, r))
+# print('UnbiasedResidualSS: ', getUnbiasedResidualSS(Z, Y, n, r))
 
 ###################################################################################
 # Function for computing Regression Sum of Squares
@@ -204,7 +222,7 @@ def getRegressionSS(data, response, observations):
     regSS = y.T.dot(Pz-P1).dot(y)
     return regSS
 
-print('RegressionSS: ', getRegressionSS(Z, Y, n))
+# print('RegressionSS: ', getRegressionSS(Z, Y, n))
 
 ###################################################################################
 # Function for computing Total Sum of Squares about Mean
@@ -218,7 +236,7 @@ def getTotalMeanSS(data, response, observations):
     z = data; y = response; n = observations
 
     # Compute the n x n Identity Matrix
-    eye = np.eye(n)
+    I = np.eye(n)
 
     # Get the Mean Projection Matrix
     P1 = getMeanProjectionMatrix(z, n)
@@ -230,12 +248,12 @@ def getTotalMeanSS(data, response, observations):
     regSS = getRegressionSS(z,y,n)
 
     # Compute the Total Sum of Squares about Mean
-    # totSS = y.T.dot(eye-P1).dot(y)
+    # totSS = y.T.dot(I-P1).dot(y)
     totSS = resSS + regSS
 
     return totSS
 
-print('totSS: ', getTotalMeanSS(Z,Y,n))
+# print('totSS: ', getTotalMeanSS(Z,Y,n))
 
 
 ###################################################################################
@@ -260,7 +278,7 @@ def getRatioRegressionSS(data, response, observations):
 
     return R2
 
-print('R2: ', getRatioRegressionSS(Z, Y, n))
+# print('R2: ', getRatioRegressionSS(Z, Y, n))
 
 
 ###################################################################################
@@ -282,21 +300,77 @@ def getAdjustedRatioRegressionSS(data, response, observations, variables):
 
     return Adjusted_R2
 
-print('Adjusted_R2: ', getAdjustedRatioRegressionSS(Z, Y, n, r))
+# print('Adjusted_R2: ', getAdjustedRatioRegressionSS(Z, Y, n, r))
 
-D = np.array([[1, 10, 11, 12],[1, 13, 14, 15],[1, 16, 17, 18], [1, 19, 20, 21]])
-index = 3
-print(D)
+# D = np.array([[1, 10, 11, 12],[1, 13, 14, 15],[1, 16, 17, 18], [1, 19, 20, 21]])
+Yd = np.array([2, 41, 32, 43, 78])
+D = np.array([[1, 10, 40, 12],[1, 13, 23, 15],[1, 16, 20, 18], [1, 19, 20, 30], [1, 20, 48, 32]])
 
-D1 = np.delete(D,index,axis=1)
-print(D1)
+def isPredictorSignificant(data, response, predictor_index, alpha_value):
 
-q = D1.shape[1]-1
-r1 = D.shape[1]-1
-n1 = D.shape[0]
-print('n1: ', n1)
-print('r1: ', r1)
-print('q: ', q)
+    # Initialize variables
+    z=0; z1=0; r=0; n=0; y=0; index=0; alpha=0; Pz=0; Pz1=0
+    I=0; df1=0; df2=0; p_value=0
+
+    # Set variables
+    z = data; y = response; index = predictor_index; alpha = alpha_value
+    z1 = np.delete(z,index,axis=1)
+
+    print('Z: ')
+    print(z)
+
+    print('Z1: ')
+    print(z1)
+
+    q = z1.shape[1]-1
+    r = z.shape[1]-1
+    n = z.shape[0]
+    I = np.eye(n)
+    df1 = r-q
+    df2 = n-r-1
+
+    print('q: ', q)
+    print('r: ', r)
+    print('n: ', n)
+
+    # Get projection matrices: Pz and Pz1
+    Pz = getProjectionMatrix(z)
+    Pz1 = getProjectionMatrix(z1)
+
+    # Compute F-ratio and p-value of F-ratio on the F distribution
+    numerator = y.T.dot(Pz -Pz1).dot(y)/(df1)
+    denomenator = y.T.dot(I -Pz).dot(y)/(df2)
+    F = numerator/denomenator
+
+    p_value = f.cdf(F, df1, df2)
+    # p_value = f(df1, df2)[1-alpha]
+    # plt.plot(p_value)
+
+    # Hypothesis test: Reject Ho or not
+    if p_value > alpha:
+        # Reject the null hypothesis H0. So the predictor is significant
+        return True
+
+    return False
+
+print('Is predictor significant?: ',isPredictorSignificant(D, Yd, 1, 0.01) )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

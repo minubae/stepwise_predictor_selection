@@ -355,7 +355,7 @@ def isPredictorSignificant(data, response, predictor_index, alpha_value):
     # plt.plot(p_value)
 
     # Hypothesis test: Reject Ho or not
-    if p_value < alpha:
+    if p_value > alpha:
         # Reject the null hypothesis H0. So the predictor is significant
         return True
 
@@ -380,12 +380,43 @@ def getAIC(data, response, observations, variables):
 
     return AIC
 
+###################################################################################
+# Compute C_p value: Select models with minimum C_p
+###################################################################################
+def getCp(data, data_subset, response, observations, variables):
+
+    z=0; zi=0; y=0; r=0; n=0; p=0
+    numerator=0; denomenator=0; Cp=0
+
+    z = data; zi = data_subset; y = response; r = variables
+    n = observations; p = r+1
+
+    numerator = getResidualSS(zi, y, n)
+    denomenator = getResidualSS(z, y, n)
+
+    Cp = numerator/denomenator - (n-2*p)
+
+    return Cp
+
+
 
 print(D)
-p = D.shape[1]
+N = D.shape[1]
 ni=D.shape[0]
 
-for i in range(1,p):
+R2 = 0
+Adj_R2 = 0
+AIC = 0
+Cp = 0
+
+R2_vec = []
+Adj_R2_vec = []
+AIC_vec = []
+Cp_vec = []
+
+# Adj_R2_vec = np.append(Adj_R2_vec, 0)
+
+for i in range(1,N):
 
     print(i)
     zi = D[:,i]
@@ -393,15 +424,42 @@ for i in range(1,p):
 
     zi = np.column_stack((ones, zi))
     print(zi)
-    print('Adjusted R2: ',getAdjustedRatioRegressionSS(zi, Yd, ni, 1))
-    print('AIC:', getAIC(zi, Yd, ni, 1))
 
+    R2 = getRatioRegressionSS(zi, Yd, ni)
+    R2_vec = np.append(R2_vec, R2)
 
+    Adj_R2 = getAdjustedRatioRegressionSS(zi, Yd, ni, 1)
+    Adj_R2_vec = np.append(Adj_R2_vec, Adj_R2)
 
+    AIC = getAIC(zi, Yd, ni, 1)
+    AIC_vec = np.append(AIC_vec, AIC)
 
+    Cp = getCp(D, zi, Yd, ni, 1)
+    Cp_vec = np.append(Cp_vec, Cp)
 
+print('R2 Vec: ')
+print(R2_vec)
 
+print('Adjusted R2 Vec: ')
+print(Adj_R2_vec)
 
+print('AIC Vec: ')
+print(AIC_vec)
+
+print('Cp Vec: ')
+print(Cp_vec)
+
+R2_max_index = np.argmax(R2_vec)
+print(R2_max_index+1)
+
+Adjusted_R2_max_index = np.argmax(Adj_R2_vec)
+print(Adjusted_R2_max_index+1)
+
+AIC_min_index = np.argmin(AIC_vec)
+print(AIC_min_index+1)
+
+Cp_min_index = np.argmin(Cp_vec)
+print(Cp_min_index+1)
 
 
 

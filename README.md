@@ -1,17 +1,18 @@
 # Stepwise Predictor Selection Method
 
-## Title: Stepwise Predictors Selection Method
-## Course: Math B7800 - Advanced Mathematical Statistics
-## Date: May/15/2018, Wednesday
-## Author: Minwoo Bae (minubae.math@gmail.com)
-## Institute: The Department of Mathematics, City College of New York, CUNY
+• Title: Stepwise Predictors Selection Method
+• Course: Math B7800 - Advanced Mathematical Statistics II
+• Instructor: Professor Shirshendu Chatterjee
+• Due Date: May/15/2018, Wednesday
+• Author: Minwoo Bae (minubae.math@gmail.com)
+• Institute: The Department of Mathematics, City College of New York, CUNY
 
 ## Project Description:
 Consider the Benzene concentration as response Y variable and others as predictors.
 Carry out Stepwise Variable selection method to select an appropriate subset of assumptions.
 Use AIC, Adjusted R^2, and C_p plot to select suitable subset of variable.
 
-## Data Set Information (Air Quiality Data Set from UCI Machine Learning Respository):
+## Data Set Information:
 The dataset contains 9358 instances of hourly averaged responses from an array of 5 metal oxide chemical sensors embedded
 in an Air Quality Chemical Multisensor Device. The device was located on the field in a significantly polluted area,
 at road level,within an Italian city. Data were recorded from March 2004 to February 2005 (one year)representing

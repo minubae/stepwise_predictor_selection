@@ -303,8 +303,9 @@ def getAdjustedRatioRegressionSS(data, response, observations, variables):
 # print('Adjusted_R2: ', getAdjustedRatioRegressionSS(Z, Y, n, r))
 
 # D = np.array([[1, 10, 11, 12],[1, 13, 14, 15],[1, 16, 17, 18], [1, 19, 20, 21]])
-Yd = np.array([2, 41, 32, 43, 78])
-D = np.array([[1, 10, 40, 12],[1, 13, 23, 15],[1, 16, 20, 18], [1, 19, 20, 30], [1, 20, 48, 32]])
+Yd = np.array([2, 41, 32, 43, 78, 38, 3])
+D = np.array([[1, 10, 40, 12, 84],[1, 13, 23, 15, 40],[1, 16, 20, 18, 59],
+              [1, 19, 20, 30, 54], [1, 20, 48, 32, 23], [1, 20, 10, 30, 40], [1, 29, 58, 12, 39]])
 
 def isPredictorSignificant(data, response, predictor_index, alpha_value):
 
@@ -342,19 +343,58 @@ def isPredictorSignificant(data, response, predictor_index, alpha_value):
     denomenator = y.T.dot(I -Pz).dot(y)/(df2)
     F = numerator/denomenator
 
+    print('F-ratio: ', F)
     p_value = f.cdf(F, df1, df2)
+    # p_value = 1-f.cdf(F, df1, df2)
+
+    print('P-value: ', p_value)
+    print('level of alpha: ', 1-alpha)
+
+    # print('F-dist: ', f(df1, df2))
     # p_value = f(df1, df2)[1-alpha]
     # plt.plot(p_value)
 
     # Hypothesis test: Reject Ho or not
-    if p_value > alpha:
+    if p_value < alpha:
         # Reject the null hypothesis H0. So the predictor is significant
         return True
 
     return False
 
-print('Is predictor significant?: ',isPredictorSignificant(D, Yd, 1, 0.01) )
+# print('Is predictor significant?: ',isPredictorSignificant(D, Yd, 3, 0.10) )
 
+###################################################################################
+# Compute Akaike's Information Criterion (AIC)
+# Select models having the smaller values of AIC
+###################################################################################
+def getAIC(data, response, observations, variables):
+
+    z=0; y=0; n=0; r=0; p=0; AIC=0
+
+    z = data; y = response; n = observations; r = variables
+
+    p = r+1
+
+    resSS = getResidualSS(z, y, n)
+    AIC = n*np.log(resSS/n)+(2*p)
+
+    return AIC
+
+
+print(D)
+p = D.shape[1]
+ni=D.shape[0]
+
+for i in range(1,p):
+
+    print(i)
+    zi = D[:,i]
+    ones = np.ones(ni)
+
+    zi = np.column_stack((ones, zi))
+    print(zi)
+    print('Adjusted R2: ',getAdjustedRatioRegressionSS(zi, Yd, ni, 1))
+    print('AIC:', getAIC(zi, Yd, ni, 1))
 
 
 

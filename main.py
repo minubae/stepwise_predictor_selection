@@ -36,24 +36,26 @@ import matplotlib.pyplot as plt
 
 
 begin = 1
-end = 20 #9358
+end_row = 14 #9358
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
 
+# end_p = 15
+end_col = 8
 csv_url = 'AirQualityUCI/AirQualityUCI.csv'
-data = np.genfromtxt(csv_url, delimiter=';', usecols = range(2,15), skip_header = 1, dtype=float, max_rows = end)
+data = np.genfromtxt(csv_url, delimiter=';', usecols = range(2,end_col), skip_header = 1, dtype=float, max_rows = end_row)
 data = np.array(data, dtype=float)
 
 # Get the Benzene concentration as a Response vector Y from the data
-Y = data[begin:end,3]
+Y = data[begin:end_row,3]
 
 # Get the number of observations
 n = Y.shape[0]
 # print('n:', n)
 
 # Get a Data Matrix Z from the data
-Z = np.delete(data,3,axis=1)[begin:end,] # axis=1 -- select a column, axis=0 -- select a row.
+Z = np.delete(data,3,axis=1)[begin:end_row,] # axis=1 -- select a column, axis=0 -- select a row.
 
 # Insert one vector into the data matrix Z
 Z = np.insert(Z, 0, np.ones(n), axis=1)
@@ -312,7 +314,7 @@ def isPredictorSignificant(data, data1, response, alpha_value):
 
     # Initialize variables
     z=[]; z1=[]; Pz=[]; Pz1=[]; I=[]
-    r=0; n=0; y=0; alpha=0; df1=0; df2=0; p_value=0
+    r=0; n=0; y=0; alpha=0; df1=0; df2=0; p_value=0; c_value=0
 
     # Set variables
     z = data; z1 = data1; y = response; alpha = alpha_value
@@ -328,6 +330,8 @@ def isPredictorSignificant(data, data1, response, alpha_value):
     print('r: ', r)
     print('q: ', q)
     print('n: ', n)
+    print('df1: ', df1)
+    print('df2: ', df2)
 
     # Get projection matrices: Pz and Pz1
     Pz = getProjectionMatrix(z)
@@ -347,11 +351,14 @@ def isPredictorSignificant(data, data1, response, alpha_value):
     denomenator = y.T.dot(I -Pz).dot(y)/(df2)
     F = numerator/denomenator
 
-    print('F-ratio: ', F)
-    p_value = f.cdf(F, df1, df2)
-    # p_value = 1-f.cdf(F, df1, df2)
+    c_value = f.ppf(1-alpha, df1, df2)
 
-    print('P-value: ', p_value)
+    # p_value = f.cdf(F, df1, df2)
+
+    # print('P-value: ', p_value)
+
+    print('F-ratio: ', F)
+    print('C-value: ', c_value)
     print('level of alpha: ', 1-alpha)
 
     # print('F-dist: ', f(df1, df2))
@@ -359,14 +366,14 @@ def isPredictorSignificant(data, data1, response, alpha_value):
     # plt.plot(p_value)
 
     # Hypothesis test: Reject Ho or not
-    if p_value > alpha:
+    if F > c_value:
         # Reject the null hypothesis H0. So the predictor is significant
         return True
 
     return False
 
-D1 = np.delete(D,3,axis=1)
-# print('Is predictor significant?: ',isPredictorSignificant(D, D1, Yd, 0.10) )
+# D1 = np.delete(D,3,axis=1)
+# print('Is predictor significant?: ',isPredictorSignificant(D, D1, Yd, 0.05) )
 
 ###################################################################################
 # Compute Akaike's Information Criterion (AIC)
@@ -419,9 +426,6 @@ def getSubsetDataMatrix(data, col_index):
     zi = np.column_stack((ones, zi))
 
     return zi
-
-
-print(D)
 
 ###################################################################################
 # Compute a predictor having the most contribution to the Regression SS:
@@ -481,19 +485,19 @@ def getMostPredictorToRegSS(data, response):
 # Compute an Initial Data matrix with a predictor showing the most contribution
 # to the Regression Sum of Squares.
 ###################################################################################
-def getInitDataMatrix(data, response):
+def getInitDataMatrix(data, response, alpha_value):
 
     z=[]; zi=[]; y=[]
-    init_predictor_index=0; test=False
+    index=0; alpha=0; test=False
 
-    z = data; y = response
-    init_predictor_index = getMostPredictorToRegSS(z, y)
+    z = data; y = response; alpha = alpha_value
+    index = getMostPredictorToRegSS(z, y)
 
     while True:
 
-        zi = getSubsetDataMatrix(z, init_predictor_index)
+        zi = getSubsetDataMatrix(z, index)
 
-        test = isPredictorSignificant(zi, zi[:,0], y, 0.10)
+        test = isPredictorSignificant(zi, zi[:,0], y, alpha)
 
         if test == True:
             # print(test)
@@ -502,26 +506,28 @@ def getInitDataMatrix(data, response):
         else:
 
             print('sorry, please try it again')
-            return getInitDataMatrix(z, y)
+            z = np.delete(z,index,axis=1)
+            return getInitDataMatrix(z, y, alpha)
 
 
-initDataMatrix = getInitDataMatrix(D, Yd)
+# initDataMatrix = getInitDataMatrix(Z, Y, 0.05)
+# initDataMatrix = getInitDataMatrix(D, Yd, 0.05)
 
-print('')
-print('Init Data Matrix: ')
-print(initDataMatrix)
+# print('')
+# print('Init Data Matrix: ')
+# print(initDataMatrix)
 
-def getUpdatedDataMatrix(init_data, data, response):
+def getUpdatedDataMatrix(init_data, data, response, alpha_value):
     z_int=[]; z_temp=[]; z_new=[]; z=[]; y=[]; regSS_vec=[]
 
-    temp=0; max_index=0
+    temp=0; max_index=0; alpha=0
 
-    z_int = init_data; z = data; y = response
+    z_int = init_data; z = data; y = response; alpha = alpha_value
 
     n = z_int.shape[0]
     p1 = z_int.shape[1]
     p2 = z.shape[1]
-    
+
     # print('p1: ', p1)
     # print('p2: ', p2)
 
@@ -549,8 +555,15 @@ def getUpdatedDataMatrix(init_data, data, response):
     while True:
 
         z_new = np.insert(z_int, p1, z[:,max_index], axis=1)
-        test = isPredictorSignificant(z_new, z_int, y, 0.10)
 
+        print('z_new: ')
+        print(z_new)
+
+        test = isPredictorSignificant(z_new, z_int, y, alpha)
+
+        print('test: ',test)
+        print('index: ', max_index)
+        # break
         if test == True:
 
             # print('test: ', test)
@@ -561,10 +574,24 @@ def getUpdatedDataMatrix(init_data, data, response):
 
             print('sorry, please try it again')
 
-            return getUpdatedDataMatrix(z_int, z, y)
+            z = np.delete(z,max_index,axis=1)
+            return getUpdatedDataMatrix(z_int, z, y, alpha)
+
+# print('D: ')
+# print(D)
+# print('D1: ')
+# print(D1)
+print('Z:')
+print(Z)
 
 
-updatedDataMatrix = getUpdatedDataMatrix(initDataMatrix, D, Yd)
+initDataMatrix = getInitDataMatrix(Z, Y, 0.05)
+print('')
+print('Init Data Matrix: ')
+print(initDataMatrix)
+
+initDataMatrix = getInitDataMatrix(Z, Y, 0.05)
+updatedDataMatrix = getUpdatedDataMatrix(initDataMatrix, Z, Y, 0.05)
 print('')
 print('Updated Data Matrix: ')
 print(updatedDataMatrix)

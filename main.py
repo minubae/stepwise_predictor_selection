@@ -324,7 +324,7 @@ def isPredictorSignificant(data, data1, response, alpha_value):
     I = np.eye(n)
     df1 = r-q
     df2 = n-r-1
-
+    print('')
     print('r: ', r)
     print('q: ', q)
     print('n: ', n)
@@ -501,10 +501,14 @@ def getInitDataMatrix(data, response):
 
         else:
 
-            zi=[]
-            init_predictor_index = getMostPredictorToRegSS(z, y)
+            print('sorry, please try it again')
+            return getInitDataMatrix(z, y)
+
 
 initDataMatrix = getInitDataMatrix(D, Yd)
+
+print('')
+print('Init Data Matrix: ')
 print(initDataMatrix)
 
 def getUpdatedDataMatrix(init_data, data, response):
@@ -517,7 +521,7 @@ def getUpdatedDataMatrix(init_data, data, response):
     n = z_int.shape[0]
     p1 = z_int.shape[1]
     p2 = z.shape[1]
-
+    
     # print('p1: ', p1)
     # print('p2: ', p2)
 
@@ -533,15 +537,10 @@ def getUpdatedDataMatrix(init_data, data, response):
 
                 z_temp = np.insert(z_int, i+1, z[:,j], axis=1)
 
-                # print('j index:', j)
-                # print(z_int)
-
                 regSS = getRegressionSS(z_temp, y, n)
 
-                print(regSS)
-
                 if  regSS > temp:
-                    print('j: ', j)
+
                     temp = regSS
                     max_index = j
 
@@ -554,7 +553,7 @@ def getUpdatedDataMatrix(init_data, data, response):
 
         if test == True:
 
-            print('test: ', test)
+            # print('test: ', test)
 
             return z_new
 
@@ -564,7 +563,11 @@ def getUpdatedDataMatrix(init_data, data, response):
 
             return getUpdatedDataMatrix(z_int, z, y)
 
-print(getUpdatedDataMatrix(initDataMatrix, D, Yd))
+
+updatedDataMatrix = getUpdatedDataMatrix(initDataMatrix, D, Yd)
+print('')
+print('Updated Data Matrix: ')
+print(updatedDataMatrix)
 
 
 

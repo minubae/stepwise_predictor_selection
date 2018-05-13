@@ -341,7 +341,6 @@ def isPredictorSignificant(data, data1, response, alpha_value):
 
         Pz1 = getMeanProjectionMatrix(n)
         # print(Pz1)
-
     else:
 
         Pz1 = getProjectionMatrix(z1)
@@ -349,12 +348,11 @@ def isPredictorSignificant(data, data1, response, alpha_value):
     # Compute F-ratio and p-value of F-ratio on the F distribution
     numerator = y.T.dot(Pz -Pz1).dot(y)/(df1)
     denomenator = y.T.dot(I -Pz).dot(y)/(df2)
-    F = numerator/denomenator
 
+    F = numerator/denomenator
     c_value = f.ppf(1-alpha, df1, df2)
 
     # p_value = f.cdf(F, df1, df2)
-
     # print('P-value: ', p_value)
 
     print('F-ratio: ', F)
@@ -584,23 +582,67 @@ def getUpdatedDataMatrix(init_data, data, response, alpha_value):
 print('Z:')
 print(Z)
 
-
-initDataMatrix = getInitDataMatrix(Z, Y, 0.05)
+alpha = 0.05
+initDataMatrix = getInitDataMatrix(Z, Y, alpha)
 print('')
 print('Init Data Matrix: ')
-print(initDataMatrix)
+print(initDataMatrix.astype(int))
 
-initDataMatrix = getInitDataMatrix(Z, Y, 0.05)
-updatedDataMatrix = getUpdatedDataMatrix(initDataMatrix, Z, Y, 0.05)
+initDataMatrix = getInitDataMatrix(Z, Y, alpha)
+updatedDataMatrix = getUpdatedDataMatrix(initDataMatrix, Z, Y, alpha)
 print('')
 print('Updated Data Matrix: ')
-print(updatedDataMatrix)
+print(updatedDataMatrix.astype(int))
+print('')
+# isPredictorSignificant(data, data1, response, alpha_value)
+
+def getPredictorValidation(data, response, alpha_value):
+
+    z=[]; y=[]; z_update=[]; validation=[]
+    n=0; p=0; r=0; add=0;leaves=0; test=False
+    z = data; y = response; alpha = alpha_value
+
+    n = z.shape[0]
+    p = z.shape[1]
+    r = p-1
+
+    z_update = z
+
+    for i in range(1, p):
+        print(i)
+        zi = z[:,i]
+
+        zi = np.column_stack((np.ones(n), zi))
+        print('zi: ')
+        print(zi.astype(int))
+
+        test = isPredictorSignificant(z, zi, y, alpha)
+
+        if test == False:
+            # print('hi')
+            z_update = np.delete(z, i, axis=1)
+            leaves += 1
+
+        else:
+
+            add += 1
+
+    print('added: ', add)
+    print('leaves: ', leaves)
+    # print('test: ', test)
+    print('')
+
+    validation.append(z_update)
+    validation.append(add)
+    validation.append(leaves)
+    validation = np.array(validation)
+
+    return validation
+
+print(getPredictorValidation(updatedDataMatrix, Y, alpha))
 
 
-
-
-
-
+# isEqual = np.array_equal(z_int[:,i], z[:,j])
 
 
 

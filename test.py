@@ -55,14 +55,14 @@ n = Y.shape[0]
 # Get a Data Matrix Z from the data
 Z = np.delete(data,3,axis=1)[begin:end,] # axis=1 -- select a column, axis=0 -- select a row.
 
-# Get the number of variables in the data matrix Z
-r = Z.shape[1]
-# print('r: ', r)
-
 # Insert one vector into the data matrix Z
 Z = np.insert(Z, 0, np.ones(n), axis=1)
+
+# Get the number of variables in the data matrix Z
+r = Z.shape[1]-1
 # print('Z:')
 # print(Z)
+# print('r: ', r)
 
 ###################################################################################
 # Function for computing Beta_hat
@@ -70,7 +70,7 @@ Z = np.insert(Z, 0, np.ones(n), axis=1)
 def getBetaHat(data, response):
 
     # Initialize variables
-    z = 0; y = 0; beta_hat=0
+    z=[]; y=[]; beta_hat=[]
 
     # Set variables
     z = data; y = response
@@ -84,9 +84,10 @@ def getBetaHat(data, response):
 # print(getBetaHat(Z, Y))
 
 def isInvertible(data):
-    z = 0
+    z=0; result=0
     z = data
-    return z.shape[0] == z.shape[1] and np.linalg.matrix_rank(z) == z.shape[0]
+    result = z.shape[0] == z.shape[1] and np.linalg.matrix_rank(z) == z.shape[0]
+    return result
 
 
 ###################################################################################
@@ -95,7 +96,7 @@ def isInvertible(data):
 def getProjectionMatrix(data):
 
     # Initialize variables
-    z = 0; Pz = 0
+    z=[]; Pz=[]
     # Set variables
     z = data
 
@@ -116,13 +117,13 @@ def getProjectionMatrix(data):
 ###################################################################################
 # Function for computing Mean Projection Matrix, i.e., P1_n
 ###################################################################################
-def getMeanProjectionMatrix(data, observations):
+def getMeanProjectionMatrix(observations):
 
     # Initialize variables
-    z = 0; n = 0; P1 = 0
+    n=0; P1=[]
 
     # Set variables
-    z = data; n = observations
+    n = observations
 
     # Compute the Mean Projection Matrix P1_n
     P1 = np.ones((n,n))/n
@@ -130,7 +131,7 @@ def getMeanProjectionMatrix(data, observations):
     return P1
 
 # print('P1: ')
-# print(getMeanProjectionMatrix(Z, n))
+# print(getMeanProjectionMatrix(n))
 
 ###################################################################################
 # Function for computing Predcted Response, i.e., Y_hat
@@ -138,7 +139,7 @@ def getMeanProjectionMatrix(data, observations):
 def getPredictedResponse(data, response):
 
     # Initialize variables
-    Pz = 0; z = 0; y = 0; y_hat = 0; y_hat1 = 0
+    Pz=[]; z=[]; y=[]; y_hat=0; y_hat1=0
 
     # Set variables
     z = data; y = response
@@ -164,7 +165,7 @@ def getPredictedResponse(data, response):
 def getResidualSS(data, response, observations):
 
     # Initialize variables
-    resSS=0;z=0;y=0;n=0;eye=0;Pz=0
+    z=[]; y=[]; Pz=[]; n=0;eye=0;resSS=0;
 
     # Set variables
     z = data; y = response; n = observations
@@ -188,7 +189,7 @@ def getResidualSS(data, response, observations):
 def getUnbiasedResidualSS(data, response, observations, variables):
 
     # Initialize variables
-    z=0;y=0;n=0;r=0;s2=0
+    z=[]; y=[]; n=0; r=0; s2=0
 
     # Set variables
     z = data; y = response; n = observations; r = variables
@@ -209,14 +210,14 @@ def getUnbiasedResidualSS(data, response, observations, variables):
 def getRegressionSS(data, response, observations):
 
     # Initialize variables
-    z=0; y=0; n=0; regSS=0
+    z=[]; y=[]; n=0; regSS=0
     z = data; y = response; n = observations
 
     # Get the Projection Matrix Pz
     Pz = getProjectionMatrix(z)
 
     # Get the Mean Projection Matrix P1_n
-    P1 = getMeanProjectionMatrix(z,n)
+    P1 = getMeanProjectionMatrix(n)
 
     # Compute the Regression Sum of Squares
     regSS = y.T.dot(Pz-P1).dot(y)
@@ -230,7 +231,7 @@ def getRegressionSS(data, response, observations):
 def getTotalMeanSS(data, response, observations):
 
     # Initialize variables
-    z=0; y=0; n=0; totSS=0
+    z=[]; y=[]; n=0; totSS=0
 
     # Set variables
     z = data; y = response; n = observations
@@ -239,7 +240,7 @@ def getTotalMeanSS(data, response, observations):
     I = np.eye(n)
 
     # Get the Mean Projection Matrix
-    P1 = getMeanProjectionMatrix(z, n)
+    P1 = getMeanProjectionMatrix(n)
 
     # Get the Residual Sum of Squares
     resSS = getResidualSS(z,y,n)
@@ -262,7 +263,7 @@ def getTotalMeanSS(data, response, observations):
 def getRatioRegressionSS(data, response, observations):
 
     # Initialize variables
-    z=0; y=0; n=0; R2=0
+    z=[]; y=[]; n=0; R2=0
 
     # Set variables
     z = data; y = response; n = observations
@@ -287,7 +288,7 @@ def getRatioRegressionSS(data, response, observations):
 def getAdjustedRatioRegressionSS(data, response, observations, variables):
 
     # Initialize variables
-    z=0; y=0; n=0; r=0; Adjusted_R2=0
+    z=[]; y=[]; n=0; r=0; Adjusted_R2=0
 
     # Set variables
     z = data; y = response; r = variables; n = observations
@@ -307,36 +308,39 @@ Yd = np.array([2, 41, 32, 43, 78, 38, 3])
 D = np.array([[1, 10, 40, 12, 84],[1, 13, 23, 15, 40],[1, 16, 20, 18, 59],
               [1, 19, 20, 30, 54], [1, 20, 48, 32, 23], [1, 20, 10, 30, 40], [1, 29, 58, 12, 39]])
 
-def isPredictorSignificant(data, response, predictor_index, alpha_value):
+def isPredictorSignificant(data, data1, response, alpha_value):
 
     # Initialize variables
-    z=0; z1=0; r=0; n=0; y=0; index=0; alpha=0; Pz=0; Pz1=0
-    I=0; df1=0; df2=0; p_value=0
+    z=[]; z1=[]; Pz=[]; Pz1=[]; I=[]
+    r=0; n=0; y=0; alpha=0; df1=0; df2=0; p_value=0
 
     # Set variables
-    z = data; y = response; index = predictor_index; alpha = alpha_value
-    z1 = np.delete(z,index,axis=1)
+    z = data; z1 = data1; y = response; alpha = alpha_value
 
-    print('Z: ')
-    print(z)
-
-    print('Z1: ')
-    print(z1)
-
-    q = z1.shape[1]-1
     r = z.shape[1]-1
     n = z.shape[0]
+    q = r-1
+
     I = np.eye(n)
     df1 = r-q
     df2 = n-r-1
 
-    print('q: ', q)
     print('r: ', r)
+    print('q: ', q)
     print('n: ', n)
 
     # Get projection matrices: Pz and Pz1
     Pz = getProjectionMatrix(z)
-    Pz1 = getProjectionMatrix(z1)
+    # print(Pz)
+
+    if r==1:
+
+        Pz1 = getMeanProjectionMatrix(n)
+        # print(Pz1)
+
+    else:
+
+        Pz1 = getProjectionMatrix(z1)
 
     # Compute F-ratio and p-value of F-ratio on the F distribution
     numerator = y.T.dot(Pz -Pz1).dot(y)/(df1)
@@ -361,7 +365,8 @@ def isPredictorSignificant(data, response, predictor_index, alpha_value):
 
     return False
 
-# print('Is predictor significant?: ',isPredictorSignificant(D, Yd, 3, 0.10) )
+D1 = np.delete(D,3,axis=1)
+# print('Is predictor significant?: ',isPredictorSignificant(D, D1, Yd, 0.10) )
 
 ###################################################################################
 # Compute Akaike's Information Criterion (AIC)
@@ -369,7 +374,7 @@ def isPredictorSignificant(data, response, predictor_index, alpha_value):
 ###################################################################################
 def getAIC(data, response, observations, variables):
 
-    z=0; y=0; n=0; r=0; p=0; AIC=0
+    z=[]; y=[]; n=0; r=0; p=0; AIC=0
 
     z = data; y = response; n = observations; r = variables
 
@@ -385,7 +390,7 @@ def getAIC(data, response, observations, variables):
 ###################################################################################
 def getCp(data, data_subset, response, observations, variables):
 
-    z=0; zi=0; y=0; r=0; n=0; p=0
+    z=[]; zi=[]; y=[]; r=0; n=0; p=0
     numerator=0; denomenator=0; Cp=0
 
     z = data; zi = data_subset; y = response; r = variables
@@ -398,68 +403,103 @@ def getCp(data, data_subset, response, observations, variables):
 
     return Cp
 
+###################################################################################
+# Get a Subset of Data Matrix
+###################################################################################
+def getSubsetDataMatrix(data, col_index):
+
+    z=[]; zi=[]; ones=[]; index=0; n=0
+
+    z = data; index = col_index
+
+    n = z.shape[0]
+    ones = np.ones(n)
+    zi = z[:, index]
+
+    zi = np.column_stack((ones, zi))
+
+    return zi
 
 
 print(D)
-N = D.shape[1]
-ni=D.shape[0]
 
-R2 = 0
-Adj_R2 = 0
-AIC = 0
-Cp = 0
+###################################################################################
+# Compute a predictor having the most contribution to the Regression SS:
+###################################################################################
+def getMostPredictorToRegSS(data, response):
 
-R2_vec = []
-Adj_R2_vec = []
-AIC_vec = []
-Cp_vec = []
+    p=0; n=0; predictor_index=0
+    R2=0; Adj_R2=0; AIC=0; Cp=0
 
-# Adj_R2_vec = np.append(Adj_R2_vec, 0)
+    R2_vec=[]; Adj_R2_vec=[]; AIC_vec=[]
+    Cp_vec=[]; index_vec=[]; z=[]; y=[]
 
-for i in range(1,N):
+    z = data; y = response
 
-    print(i)
-    zi = D[:,i]
-    ones = np.ones(ni)
+    p = z.shape[1]
+    n = z.shape[0]
 
-    zi = np.column_stack((ones, zi))
-    print(zi)
+    for i in range(1,p):
 
-    R2 = getRatioRegressionSS(zi, Yd, ni)
-    R2_vec = np.append(R2_vec, R2)
+        zi = getSubsetDataMatrix(z, i)
 
-    Adj_R2 = getAdjustedRatioRegressionSS(zi, Yd, ni, 1)
-    Adj_R2_vec = np.append(Adj_R2_vec, Adj_R2)
+        R2 = getRatioRegressionSS(zi, y, n)
+        R2_vec = np.append(R2_vec, R2)
 
-    AIC = getAIC(zi, Yd, ni, 1)
-    AIC_vec = np.append(AIC_vec, AIC)
+        Adj_R2 = getAdjustedRatioRegressionSS(zi, y, n, 1)
+        Adj_R2_vec = np.append(Adj_R2_vec, Adj_R2)
 
-    Cp = getCp(D, zi, Yd, ni, 1)
-    Cp_vec = np.append(Cp_vec, Cp)
+        AIC = getAIC(zi, y, n, 1)
+        AIC_vec = np.append(AIC_vec, AIC)
 
-print('R2 Vec: ')
-print(R2_vec)
+        Cp = getCp(z, zi, y, n, 1)
+        Cp_vec = np.append(Cp_vec, Cp)
 
-print('Adjusted R2 Vec: ')
-print(Adj_R2_vec)
+    R2_max_index = np.argmax(R2_vec)+1
 
-print('AIC Vec: ')
-print(AIC_vec)
+    Adjusted_R2_max_index = np.argmax(Adj_R2_vec)+1
 
-print('Cp Vec: ')
-print(Cp_vec)
+    AIC_min_index = np.argmin(AIC_vec)+1
 
-R2_max_index = np.argmax(R2_vec)
-print(R2_max_index+1)
+    Cp_min_index = np.argmin(Cp_vec)+1
 
-Adjusted_R2_max_index = np.argmax(Adj_R2_vec)
-print(Adjusted_R2_max_index+1)
+    index_vec = np.append(index_vec, [R2_max_index, Adjusted_R2_max_index, AIC_min_index, Cp_min_index]).astype(int)
 
-AIC_min_index = np.argmin(AIC_vec)
-print(AIC_min_index+1)
+    predictor_index = np.bincount(index_vec).argmax()
 
-Cp_min_index = np.argmin(Cp_vec)
-print(Cp_min_index+1)
+
+    return predictor_index
+
+###################################################################################
+# Compute an Initial Data matrix with a predictor showing the most contribution
+# to the Regression Sum of Squares.
+###################################################################################
+def getInitDataMatrix(data, response):
+
+    z=[]; zi=[]; y=[]
+    init_predictor_index=0; test=False
+
+    z = data; y = response
+    init_predictor_index = getMostPredictorToRegSS(z, y)
+
+    while True:
+
+        zi = getSubsetDataMatrix(z, init_predictor_index)
+
+        test = isPredictorSignificant(zi, zi[:,0], y, 0.10)
+
+        if test == True:
+            # print(test)
+            return zi
+
+        else:
+
+            zi=[]
+            init_predictor_index = getMostPredictorToRegSS(z, y)
+
+
+print(getInitDataMatrix(D, Yd))
+
 
 
 

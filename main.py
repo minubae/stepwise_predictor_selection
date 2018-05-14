@@ -31,12 +31,9 @@ from scipy.stats import f
 from numpy.linalg import inv
 from numpy import dot
 import matplotlib.pyplot as plt
-# from numpy import matmul as mult
-# from numpy.random import f
-
 
 begin = 1
-end_row = 20 #9358
+end_row = 9358 #9358
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
@@ -59,14 +56,14 @@ Z = np.delete(data,3,axis=1)[begin:end_row,] # axis=1 -- select a column, axis=0
 
 # Insert one vector into the data matrix Z
 Z = np.insert(Z, 0, np.ones(n), axis=1)
-Z = Z.astype(int)
+Z = Z.astype(float)
 # Get the number of variables in the data matrix Z
 r = Z.shape[1]-1
 # print('Z:')
 # print(Z)
 # print('r: ', r)
-print('Original Data:')
-print(data.astype(int))
+# print('Original Data:')
+# print(data.astype(int))
 ###################################################################################
 # Function for computing Beta_hat
 ###################################################################################
@@ -282,7 +279,6 @@ def getRatioRegressionSS(data, response, observations):
 
 # print('R2: ', getRatioRegressionSS(Z, Y, n))
 
-
 ###################################################################################
 # Function for computing Adjusted R2 (Adjusted Ratio of Regression Sum of Squares)
 ###################################################################################
@@ -303,11 +299,6 @@ def getAdjustedRatioRegressionSS(data, response, observations, variables):
     return Adjusted_R2
 
 # print('Adjusted_R2: ', getAdjustedRatioRegressionSS(Z, Y, n, r))
-
-# D = np.array([[1, 10, 11, 12],[1, 13, 14, 15],[1, 16, 17, 18], [1, 19, 20, 21]])
-Yd = np.array([2, 41, 32, 43, 78, 38, 3])
-D = np.array([[1, 10, 40, 12, 84],[1, 13, 23, 15, 40],[1, 16, 20, 18, 59],
-              [1, 19, 20, 30, 54], [1, 20, 48, 32, 23], [1, 20, 10, 30, 40], [1, 29, 58, 12, 39]])
 
 def isPredictorSignificant(data, data1, response, alpha_value):
 
@@ -358,10 +349,6 @@ def isPredictorSignificant(data, data1, response, alpha_value):
     print('C-value: ', c_value)
     print('level of alpha: ', 1-alpha)
 
-    # print('F-dist: ', f(df1, df2))
-    # p_value = f(df1, df2)[1-alpha]
-    # plt.plot(p_value)
-
     # Hypothesis test: Reject Ho or not
     if F > c_value:
         # Reject the null hypothesis H0. So the predictor is significant
@@ -369,8 +356,6 @@ def isPredictorSignificant(data, data1, response, alpha_value):
 
     return False
 
-# D1 = np.delete(D,3,axis=1)
-# print('Is predictor significant?: ',isPredictorSignificant(D, D1, Yd, 0.05) )
 
 ###################################################################################
 # Compute Akaike's Information Criterion (AIC)
@@ -492,14 +477,9 @@ def getInitDataMatrix(data, response, alpha_value):
     z = data; y = response; alpha = alpha_value
     index = getMostPredictorToRegSS(z, y)
 
-    # print('data')
-    # print(z)
-
     zi = getSubsetDataMatrix(z, index)
 
     test = isPredictorSignificant(zi, zi[:,0], y, alpha)
-
-    # print(zi.astype(int))
 
     if test == True:
 
@@ -513,12 +493,6 @@ def getInitDataMatrix(data, response, alpha_value):
         return getInitDataMatrix(z, y, alpha)
 
 
-# initDataMatrix = getInitDataMatrix(D, Yd, 0.05)
-# initDataMatrix = getInitDataMatrix(Z, Y, 0.05)
-# print('')
-# print('Init Data Matrix: ')
-# print(initDataMatrix.astype(int))
-
 def getUpdatedDataMatrix(init_data, data, response, alpha_value):
     z_int=[]; z_temp=[]; z_updated=[]; z_new=[]; z=[]; y=[]; regSS_vec=[]
     index_vec=[]
@@ -531,23 +505,14 @@ def getUpdatedDataMatrix(init_data, data, response, alpha_value):
     p1 = z_int.shape[1]
     p2 = z.shape[1]
 
-    # print('p1: ', p1)
-    # print('p2: ', p2)
-    #
-    # print('z_int')
-    # print(z_int.astype(int))
-
     for i in range(p1):
-        # print('z_int')
-        # print(z_int[:,i])
+
         for j in range(p2):
-            # print('z')
-            # print(z[:,j])
-            # if (z_int[:,i]==z[:,j]).all():
+
             isEqual = np.array_equal(z_int[:,i], z[:,j])
+
             if isEqual == True:
-                # print('delete:')
-                # print(z[:,j])
+
                 index_vec.append(j)
 
     z_updated = np.delete(z,index_vec,axis=1)
@@ -557,14 +522,10 @@ def getUpdatedDataMatrix(init_data, data, response, alpha_value):
 
     p2_new = z_updated.shape[1]
 
-    # print('p2_new:', p2_new)
 
     for i in range(p2_new):
 
         z_temp = np.insert(z_int, p1, z_updated[:,i], axis=1)
-
-        # print('really?')
-        # print(z_temp.astype(int))
 
         regSS = getRegressionSS(z_temp, y, n)
 
@@ -597,26 +558,6 @@ def getUpdatedDataMatrix(init_data, data, response, alpha_value):
 
         return getUpdatedDataMatrix(z_int, z, y, alpha)
 
-# print('D: ')
-# print(D)
-# print('D1: ')
-# print(D1)
-# print('Z:')
-# print(Z)
-#
-# alpha = 0.05
-# initDataMatrix = getInitDataMatrix(Z, Y, alpha)
-# print('')
-# print('Init Data Matrix: ')
-# print(initDataMatrix.astype(int))
-
-# initDataMatrix = getInitDataMatrix(Z, Y, alpha)
-# updatedDataMatrix = getUpdatedDataMatrix(initDataMatrix, Z, Y, alpha)
-# print('')
-# print('Updated Data Matrix: ')
-# print(updatedDataMatrix.astype(int))
-# print('')
-# isPredictorSignificant(data, data1, response, alpha_value)
 
 def getPredictorValidation(data, response, alpha_value):
 
@@ -703,20 +644,37 @@ def getStepwisePredictors(data, init_data, response, alpha_value):
 
     else:
 
-        return updated_data.astype(int)
+        return updated_data
 
 
 
 alpha = 0.05
 init_data = getInitDataMatrix(Z, Y, alpha)
 
-
+updated_model = getStepwisePredictors(Z, init_data, Y, alpha)
 print('Stepwise Predictors: ')
-print(getStepwisePredictors(Z, init_data, Y, alpha))
+print(updated_model.astype(int))
 # print('init_data:')
 # print(init_data.astype(int))
 
 
+beta_hat = getBetaHat(Z, Y)
+# print(beta_hat.astype(float))
+
+p = Z.shape[1]
+p1 = updated_model.shape[1]
+index_vec = []
+# Z = Z.astype(int)
+
+for i in range(p1):
+    for j in range(p):
+        isEqual = np.array_equal(updated_model[:,i], Z[:,j])
+        if isEqual == True:
+            # print('delete:')
+            # print(z[:,j])
+            index_vec.append(j)
+
+print(index_vec)
 
 
 
@@ -733,13 +691,4 @@ print(getStepwisePredictors(Z, init_data, Y, alpha))
 
 
 
-
-
-
-
-
-
-
-
-
-#print('Hello!')
+# print('Hello')

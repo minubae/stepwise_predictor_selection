@@ -33,7 +33,7 @@ from numpy import dot
 import matplotlib.pyplot as plt
 
 begin = 1
-end_row = 9358 #9358
+end_row = 30 #9358
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
@@ -433,37 +433,59 @@ def getMostPredictorToRegSS(data, response):
         # R2_vec = np.append(R2_vec, R2)
         R2_vec.append(R2)
 
-        Adj_R2 = getAdjustedRatioRegressionSS(zi, y, n, 1)
-        # Adj_R2_vec = np.append(Adj_R2_vec, Adj_R2)
-        Adj_R2_vec.append(Adj_R2)
-
-
-        AIC = getAIC(zi, y, n, 1)
-        # AIC_vec = np.append(AIC_vec, AIC)
-        AIC_vec.append(AIC)
-
-        Cp = getCp(z, zi, y, n, 1)
-        # Cp_vec = np.append(Cp_vec, Cp)
-        Cp_vec.append(Cp)
+        # Adj_R2 = getAdjustedRatioRegressionSS(zi, y, n, 1)
+        # # Adj_R2_vec = np.append(Adj_R2_vec, Adj_R2)
+        # Adj_R2_vec.append(Adj_R2)
+        #
+        #
+        # AIC = getAIC(zi, y, n, 1)
+        # # AIC_vec = np.append(AIC_vec, AIC)
+        # AIC_vec.append(AIC)
+        #
+        # Cp = getCp(z, zi, y, n, 1)
+        # # Cp_vec = np.append(Cp_vec, Cp)
+        # Cp_vec.append(Cp)
 
     # print('R2', R2_vec)
 
     R2_max_index = np.argmax(R2_vec)+1
 
-    Adjusted_R2_max_index = np.argmax(Adj_R2_vec)+1
+    # Adjusted_R2_max_index = np.argmax(Adj_R2_vec)+1
+    #
+    # AIC_min_index = np.argmin(AIC_vec)+1
+    #
+    # Cp_min_index = np.argmin(Cp_vec)+1
+    #
+    # index_vec = np.append(index_vec, [R2_max_index, Adjusted_R2_max_index, AIC_min_index, Cp_min_index]).astype(int)
+    #
+    # predictor_index = np.bincount(index_vec).argmax()
 
-    AIC_min_index = np.argmin(AIC_vec)+1
-
-    Cp_min_index = np.argmin(Cp_vec)+1
-
-    index_vec = np.append(index_vec, [R2_max_index, Adjusted_R2_max_index, AIC_min_index, Cp_min_index]).astype(int)
-
-    predictor_index = np.bincount(index_vec).argmax()
+    # print('R2: ')
+    # print(R2_vec)
 
 
+    print('R2 Max index:')
+    print(R2_max_index)
     # plot = [R2_max_index, Adjusted_R2_max_index, AIC_min_index, Cp_min_index]
 
-    return predictor_index
+    '''
+    plt.title('R2 Value of a regression model with one predictor')
+    # plt.suptitle('The Sum of Squares (Covariances)', x=0.514, y=0.96, fontsize=10)
+    # plt.legend(loc='upper left')
+    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+    # label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+    plt.xticks(x, label)
+    plt.xlabel('index of predictors', fontsize=12)
+    plt.ylabel('R2 value', fontsize=12)
+    # plt.plot(x, R2_vec)
+    plt.bar(x, R2_vec)
+    plt.show()
+    # plt.savefig('figure_01.png')
+    '''
+
+    return R2_max_index
 
 ###################################################################################
 # Compute an Initial Data matrix with a predictor showing the most contribution
@@ -491,6 +513,11 @@ def getInitDataMatrix(data, response, alpha_value):
         z = np.delete(z,index,axis=1)
 
         return getInitDataMatrix(z, y, alpha)
+
+
+# initData = getInitDataMatrix(Z, Y, 0.05)
+# print(initData.astype(int))
+# print(Z.astype(int))
 
 
 def getUpdatedDataMatrix(init_data, data, response, alpha_value):
@@ -582,12 +609,13 @@ def getPredictorValidation(data, response, alpha_value):
         test = isPredictorSignificant(z, zi, y, alpha)
 
         if test == False:
-            # print('hi')
+            print('bye:leave')
             z_update = np.delete(z, i, axis=1)
             leaves += 1
 
         else:
 
+            print('hi:add')
             add += 1
 
     print('added: ', add)
@@ -647,7 +675,7 @@ def getStepwisePredictors(data, init_data, response, alpha_value):
         return updated_data
 
 
-
+# '''
 alpha = 0.05
 init_data = getInitDataMatrix(Z, Y, alpha)
 
@@ -675,7 +703,7 @@ for i in range(p1):
             index_vec.append(j)
 
 print(index_vec)
-
+# '''
 
 
 

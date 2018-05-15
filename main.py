@@ -33,12 +33,12 @@ from numpy import dot
 import matplotlib.pyplot as plt
 
 begin = 1
-end_row = 9358
+end_row = 30 #9358
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
 
-end_col = 15
+end_col = 14
 # end_col = 10
 csv_url = 'AirQualityUCI/AirQualityUCI.csv'
 data = np.genfromtxt(csv_url, delimiter=';', usecols = range(2,end_col), skip_header = 1, dtype=float, max_rows = end_row)
@@ -616,12 +616,12 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
                 return getUpdatedDataMatrix(z, z_int, y, alpha)
 
 
-alpha = 0.05
-init_data = getInitDataMatrix(Z, Y, alpha)
-# print('init_data:')
-# print(init_data.astype(int))
-updated_data = getUpdatedDataMatrix(Z, init_data, Y, alpha)
-print(updated_data.astype(int))
+# alpha = 0.05
+# init_data = getInitDataMatrix(Z, Y, alpha)
+# # print('init_data:')
+# # print(init_data.astype(int))
+# updated_data = getUpdatedDataMatrix(Z, init_data, Y, alpha)
+# print(updated_data.astype(int))
 
 
 def getPredictorValidation(data, response, alpha_value):
@@ -673,7 +673,7 @@ def getPredictorValidation(data, response, alpha_value):
     #
     #     return True
 
-    if leaves==0:
+    if leaves == 0:
 
         check = True
 
@@ -716,13 +716,13 @@ def getStepwisePredictors(data, init_data, response, significant, alpha_value):
 
     # updated_data = validation[0]
 
-    if validation == True:
+    if validation == False:
 
         return updated_data
 
     else:
 
-        return getStepwisePredictors(updated_data, init_data, y, sgf, alpha)
+        return getStepwisePredictors(z, updated_data, y, sgf, alpha)
 
     # add = validation[1]
     # leaves = validation[2]
@@ -751,7 +751,7 @@ def getStepwisePredictors(data, init_data, response, significant, alpha_value):
 
 print('Z:')
 print(Z.astype(int))
-'''
+
 alpha = 0.05
 init_data = getInitDataMatrix(Z, Y, alpha)
 # print('init_data:')
@@ -779,7 +779,7 @@ for i in range(p1):
             index_vec.append(j)
 
 print(index_vec)
-'''
+
 
 
 

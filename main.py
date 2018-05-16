@@ -33,7 +33,7 @@ from numpy import dot
 import matplotlib.pyplot as plt
 
 begin = 1
-end_row = 20
+end_row = 30 #9358
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
@@ -434,40 +434,10 @@ def getMostPredictorToRegSS(data, response):
         # R2_vec = np.append(R2_vec, R2)
         R2_vec.append(R2)
 
-        # Adj_R2 = getAdjustedRatioRegressionSS(zi, y, n, 1)
-        # # Adj_R2_vec = np.append(Adj_R2_vec, Adj_R2)
-        # Adj_R2_vec.append(Adj_R2)
-        #
-        #
-        # AIC = getAIC(zi, y, n, 1)
-        # # AIC_vec = np.append(AIC_vec, AIC)
-        # AIC_vec.append(AIC)
-        #
-        # Cp = getCp(z, zi, y, n, 1)
-        # # Cp_vec = np.append(Cp_vec, Cp)
-        # Cp_vec.append(Cp)
-
-    # print('R2', R2_vec)
-
     R2_max_index = np.argmax(R2_vec)+1
-
-    # Adjusted_R2_max_index = np.argmax(Adj_R2_vec)+1
-    #
-    # AIC_min_index = np.argmin(AIC_vec)+1
-    #
-    # Cp_min_index = np.argmin(Cp_vec)+1
-    #
-    # index_vec = np.append(index_vec, [R2_max_index, Adjusted_R2_max_index, AIC_min_index, Cp_min_index]).astype(int)
-    #
-    # predictor_index = np.bincount(index_vec).argmax()
-
-    # print('R2: ')
-    # print(R2_vec)
-
 
     print('R2 Max index:')
     print(R2_max_index)
-    # plot = [R2_max_index, Adjusted_R2_max_index, AIC_min_index, Cp_min_index]
 
     '''
     plt.title('R2 Value of a regression model with one predictor')
@@ -550,6 +520,7 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
     p2_new = z_updated.shape[1]
 
     print('hehe++++++++: ', p2_new)
+    print(z_updated.astype(int))
 
     if p2_new == 0:
 
@@ -577,43 +548,45 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
 
             z_temp=[]
 
-            print('max_index: ', max_index)
+        print('max_index: ', max_index)
+        print('Predictor having Max RegSS:')
+        print(z_updated[:,max_index].astype(int))
 
-            z1 = np.column_stack((z_int, z_updated[:,max_index]))
+        z1 = np.column_stack((z_int, z_updated[:,max_index]))
 
-            test = isPredictorSignificant(z_int, z1, y, alpha)
+        test = isPredictorSignificant(z_int, z1, y, alpha)
 
-            print(z1.astype(int))
+        print(z1.astype(int))
 
-            print('test:', test)
-            print('Yo, here?', z_updated.shape[1])
+            # print('test:', test)
+            # print('Yo, here?', z_updated.shape[1])
             # print(z.astype(int))
 
 
-            if test == True:
+        if test == True:
 
-                z_new = np.insert(z_int, p1, z_updated[:,max_index], axis=1)
+            z_new = np.insert(z_int, p1, z_updated[:,max_index], axis=1)
 
-                return z_new
+            return z_new
 
-            else:
+        else:
 
-                print('Find a another predictor.')
+            print('Find a another predictor.')
 
-                z_updated = np.delete(z_updated, max_index, axis=1)
+            z_updated = np.delete(z_updated, max_index, axis=1)
 
-                print('Yo, yo,')
-                print(z_updated.astype(int))
-                print(z_updated.shape[1])
+                # print('Yo, yo,')
+            print(z_updated.astype(int))
+                # print(z_updated.shape[1])
+                #
+                # print(z_int.astype(int))
 
-                print(z_int.astype(int))
+            z = np.column_stack((np.ones(n), z_updated))
 
-                z = np.column_stack((np.ones(n), z_updated))
+                # print('wow:')
+                # print(z.astype(int))
 
-                print('wow:')
-                print(z.astype(int))
-
-                return getUpdatedDataMatrix(z, z_int, y, alpha)
+            return getUpdatedDataMatrix(z, z_int, y, alpha)
 
 
 # alpha = 0.05
@@ -624,19 +597,24 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
 # print(updated_data.astype(int))
 
 
-def getPredictorValidation(data, response, alpha_value):
+def getPredictorValidation(data, response, alpha_value): #current_data
 
-    z=[]; y=[]; z_update=[]; validation=[]
+    z=[]; y=[]; z_update=[]; current=[]; validation=[]
     n=0; p=0; r=0; add=0;leaves=0; test=False
     z = data; y = response; alpha = alpha_value
+
+
+    # current = current_data
 
     n = z.shape[0]
     p = z.shape[1]
     r = p-1
 
-    z_update = z
+    # z_update = z
 
-    check = False
+    print('')
+    print('Validation and Current Model: ')
+    print(z.astype(int))
 
     for i in range(1, p):
         # print(i)
@@ -647,16 +625,25 @@ def getPredictorValidation(data, response, alpha_value):
         # print(zi.astype(int))
 
         test = isPredictorSignificant(z, zi, y, alpha)
-        print('here?')
 
         if test == False:
-            print('bye:leave')
+            print('bye:leave: ', i)
             z_update = np.delete(z, i, axis=1)
+
             leaves += 1
+
+            if z_update.shape[1] == 1:
+
+                validation.append(z)
+                validation.append(add)
+                validation.append(leaves)
+                validation = np.array(validation)
+
+                return validation
 
         else:
 
-            print('hi:add')
+            print('hi:add', i)
             add += 1
 
     print('added: ', add)
@@ -664,7 +651,7 @@ def getPredictorValidation(data, response, alpha_value):
     # print('test: ', test)
     print('')
 
-    validation.append(z_update)
+    validation.append(z)
     validation.append(add)
     validation.append(leaves)
     validation = np.array(validation)
@@ -692,43 +679,30 @@ def getStepwisePredictors(data, init_data, response, alpha_value): #significant
 
     print('new_data+++++')
     print(new_data.astype(int))
-
-
     print(z.astype(int))
-
 
     new_r = new_data.shape[1]-1
     print('new_r:', new_r)
 
-    if new_r == 0:
 
-        new_data = getInitDataMatrix(z, y, alpha)
-        print('Up_r is empty~!!!!!')
-        print(new_data.astype(int))
+    updated_data = getUpdatedDataMatrix(z, new_data, y, alpha)
 
-        return getStepwisePredictors(z, new_data, y, alpha)
+    validation = getPredictorValidation(updated_data, y, alpha)
 
+    checked_data = validation[0]
+
+    up_r = updated_data.shape[1]
+
+    add = validation[1]
+    leaves = validation[2]
+
+    if new_r == up_r and leaves == 0:
+
+        return checked_data
 
     else:
 
-        updated_data = getUpdatedDataMatrix(z, new_data, y, alpha)
-
-        validation = getPredictorValidation(updated_data, y, alpha)
-
-        checked_data = validation[0]
-
-        up_r = updated_data.shape[1]
-
-        add = validation[1]
-        leaves = validation[2]
-
-        if new_r == up_r and leaves == 0:
-
-            return checked_data
-
-        else:
-
-            return getStepwisePredictors(z, checked_data, y, alpha)
+        return getStepwisePredictors(z, checked_data, y, alpha)
 
 
 

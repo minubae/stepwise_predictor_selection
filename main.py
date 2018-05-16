@@ -33,7 +33,7 @@ from numpy import dot
 import matplotlib.pyplot as plt
 
 begin = 1
-end_row = 30 #9358
+end_row = 20
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
@@ -669,29 +669,17 @@ def getPredictorValidation(data, response, alpha_value):
     validation.append(leaves)
     validation = np.array(validation)
 
-    # if sgf == check:
-    #
-    #     return True
-
-    if leaves == 0:
-
-        check = True
-
-    else:
-        check = False
-
-    # return validation
-    return check
+    return validation
 
 # print(getPredictorValidation(updatedDataMatrix, Y, alpha))
 
 
 # isEqual = np.array_equal(z_int[:,i], z[:,j])
 
-def getStepwisePredictors(data, init_data, response, significant, alpha_value):
+def getStepwisePredictors(data, init_data, response, alpha_value): #significant
 
     alpha=0; add=0; leaves=0; n=0; p=0; r=0
-    new_data=[]; validation=[]; updated_data=[]; z=[]; y=[]
+    new_data=[]; validation=[]; updated_data=[]; checked_data=[]; z=[]; y=[]
 
     z = data; new_data = init_data; y = response; alpha = alpha_value
 
@@ -702,51 +690,47 @@ def getStepwisePredictors(data, init_data, response, significant, alpha_value):
     print('n: ', n)
     print('r: ', r)
 
-    print('new_data')
+    print('new_data+++++')
     print(new_data.astype(int))
-    print('new_r:', new_data.shape[1]-1)
+
 
     print(z.astype(int))
 
-    sgf = significant
 
-    updated_data = getUpdatedDataMatrix(z, new_data, y, alpha)
+    new_r = new_data.shape[1]-1
+    print('new_r:', new_r)
 
-    validation = getPredictorValidation(updated_data, y, alpha)
+    if new_r == 0:
 
-    # updated_data = validation[0]
+        new_data = getInitDataMatrix(z, y, alpha)
+        print('Up_r is empty~!!!!!')
+        print(new_data.astype(int))
 
-    if validation == False:
+        return getStepwisePredictors(z, new_data, y, alpha)
 
-        return updated_data
 
     else:
 
-        return getStepwisePredictors(z, updated_data, y, sgf, alpha)
+        updated_data = getUpdatedDataMatrix(z, new_data, y, alpha)
 
-    # add = validation[1]
-    # leaves = validation[2]
+        validation = getPredictorValidation(updated_data, y, alpha)
 
-    # r2 = updated_data.shape[1]
+        checked_data = validation[0]
 
-    # print('Updated Data')
-    # print(updated_data.astype(int))
+        up_r = updated_data.shape[1]
 
-    # print('add: ', add)
-    # print('leaves: ', leaves)
-    #
-    # if add+leaves < r:
-    #
-    #     print('Sorry, please try steps further.', r2)
-    #
-    #     print('updated_data:::::')
-    #     print(updated_data.astype(int))
-    #
-    #     return getStepwisePredictors(z, updated_data, y, alpha)
-    #
-    # else:
-    #
-    #     return updated_data
+        add = validation[1]
+        leaves = validation[2]
+
+        if new_r == up_r and leaves == 0:
+
+            return checked_data
+
+        else:
+
+            return getStepwisePredictors(z, checked_data, y, alpha)
+
+
 
 
 print('Z:')
@@ -757,7 +741,7 @@ init_data = getInitDataMatrix(Z, Y, alpha)
 # print('init_data:')
 # print(init_data.astype(int))
 
-updated_model = getStepwisePredictors(Z, init_data, Y, True, alpha)
+updated_model = getStepwisePredictors(Z, init_data, Y, alpha)
 print('Stepwise Predictors: ')
 print(updated_model.astype(int))
 

@@ -33,7 +33,8 @@ from numpy import dot
 import matplotlib.pyplot as plt
 
 begin = 1
-end_row = 30 #9358
+# end_row = 9358
+end_row = 30
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
@@ -282,13 +283,15 @@ def getRatioRegressionSS(data, response, observations):
 ###################################################################################
 # Function for computing Adjusted R2 (Adjusted Ratio of Regression Sum of Squares)
 ###################################################################################
-def getAdjustedRatioRegressionSS(data, response, observations, variables):
+def getAdjustedRatioRegressionSS(data, response):
 
     # Initialize variables
     z=[]; y=[]; n=0; r=0; Adjusted_R2=0
 
     # Set variables
-    z = data; y = response; r = variables; n = observations
+    z = data; y = response
+
+    r = z.shape[1]-1; n = z.shape[0]
 
     # Get the Ration of Regression SS, i.e., R2
     R2 = getRatioRegressionSS(z, y, n)
@@ -362,11 +365,12 @@ def isPredictorSignificant(data, data1, response, alpha_value):
 # Compute Akaike's Information Criterion (AIC)
 # Select models having the smaller values of AIC
 ###################################################################################
-def getAIC(data, response, observations, variables):
+def getAIC(data, response):
 
     z=[]; y=[]; n=0; r=0; p=0; AIC=0
 
-    z = data; y = response; n = observations; r = variables
+    z = data; y = response
+    r = z.shape[1]-1; n = z.shape[0]
 
     p = r+1
 
@@ -378,13 +382,15 @@ def getAIC(data, response, observations, variables):
 ###################################################################################
 # Compute C_p value: Select models with minimum C_p
 ###################################################################################
-def getCp(data, data_subset, response, observations, variables):
+def getCp(data, data_subset, response):
 
     z=[]; zi=[]; y=[]; r=0; n=0; p=0
     numerator=0; denomenator=0; Cp=0
 
-    z = data; zi = data_subset; y = response; r = variables
-    n = observations; p = r+1
+    z = data; zi = data_subset; y = response
+
+    r = z.shape[1]-1; n = z.shape[0]
+    p = r+1
 
     numerator = getResidualSS(zi, y, n)
     denomenator = getResidualSS(z, y, n)
@@ -571,6 +577,8 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
 
         else:
 
+
+
             print('Find a another predictor.')
 
             z_updated = np.delete(z_updated, max_index, axis=1)
@@ -580,6 +588,13 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
                 # print(z_updated.shape[1])
                 #
                 # print(z_int.astype(int))
+
+            if z_updated.shape[1] == 0:
+
+                print('I need to fix this point on May 15th, 2018')
+                print(z_int.astype(int))
+
+                return z_int
 
             z = np.column_stack((np.ones(n), z_updated))
 
@@ -685,6 +700,24 @@ def getStepwisePredictors(data, init_data, response, alpha_value): #significant
     print('new_r:', new_r)
 
 
+    # p = z.shape[1]
+    p1 = new_data.shape[1]
+    index_vec = []
+    # Z = Z.astype(int)
+
+    for i in range(p1):
+        for j in range(p):
+            isEqual = np.array_equal(new_data[:,i], z[:,j])
+            if isEqual == True:
+                # print('delete:')
+                # print(z[:,j])
+                index_vec.append(j)
+
+
+    print('Which Predictors are the best?')
+    print(index_vec)
+
+
     updated_data = getUpdatedDataMatrix(z, new_data, y, alpha)
 
     validation = getPredictorValidation(updated_data, y, alpha)
@@ -723,26 +756,26 @@ print(updated_model.astype(int))
 beta_hat = getBetaHat(Z, Y)
 # print(beta_hat.astype(float))
 
-p = Z.shape[1]
-p1 = updated_model.shape[1]
-index_vec = []
-# Z = Z.astype(int)
-
-for i in range(p1):
-    for j in range(p):
-        isEqual = np.array_equal(updated_model[:,i], Z[:,j])
-        if isEqual == True:
-            # print('delete:')
-            # print(z[:,j])
-            index_vec.append(j)
-
-print(index_vec)
 
 
+'''
+print('New Z: ')
+# new_z = Z[:,[0, 3, 5, 6]]
 
+new_z = Z[:,[0, 3, 5]]
+# new_z = Z[:,[0, 3, 6]]
+# new_z = Z[:,[0, 5, 6]]
 
+# new_z = Z[:,[0, 3]]
+# new_z = Z[:,[0, 5]]
+# new_z = Z[:,[0, 6]]
 
+print(new_z.astype(int))
 
+print(getAdjustedRatioRegressionSS(new_z, Y))
+print(getAIC(new_z, Y))
+# getCp(new_z, data_subset, Y)
+'''
 
 
 

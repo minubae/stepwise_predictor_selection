@@ -2,7 +2,7 @@
 # Title: Stepwise Predictors Selection Method
 # Course: Math B7800 - Advanced Mathematical Statistics II
 # Instructor: Professor Shirshendu Chatterjee
-# Due Date: May/15/2018, Wednesday
+# Due Date: May/16/2018, Wednesday
 # Author: Minwoo Bae (minubae.math@gmail.com)
 # Institute: The Department of Mathematics, City College of New York, CUNY
 
@@ -33,14 +33,15 @@ from numpy import dot
 import matplotlib.pyplot as plt
 
 begin = 1
-# end_row = 9358
-end_row = 30
+end_row = 9358
+# end_row = 30
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
 
-end_col = 14
-# end_col = 10
+end_col = 15
+# end_col = 14
+
 csv_url = 'AirQualityUCI/AirQualityUCI.csv'
 data = np.genfromtxt(csv_url, delimiter=';', usecols = range(2,end_col), skip_header = 1, dtype=float, max_rows = end_row)
 data = np.array(data, dtype=float)
@@ -353,6 +354,26 @@ def isPredictorSignificant(data, data1, response, alpha_value):
     print('level of alpha: ', 1-alpha)
     print('')
 
+    Fs_vec = []
+    Fs_vec.append(F)
+    Fs_vec.append(c_value)
+
+    '''
+    plt.title('F test with the level of 0.05')
+    # plt.suptitle('The Sum of Squares (Covariances)', x=0.514, y=0.96, fontsize=10)
+    # plt.legend(loc='upper left')
+    # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    x = [1, 2]
+    # label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+    label = ['F', 'F_{1,n-3}(0.05)']
+    plt.xticks(x, label)
+    # plt.xlabel('index of predictors', fontsize=12)
+    # plt.ylabel('R2 value', fontsize=12)
+    # plt.plot(x, R2_vec)
+    plt.bar(x, Fs_vec)
+    plt.show()
+    # '''
+
     # Hypothesis test: Reject Ho or not
     if F > c_value:
         # Reject the null hypothesis H0. So the predictor is significant
@@ -449,10 +470,10 @@ def getMostPredictorToRegSS(data, response):
     plt.title('R2 Value of a regression model with one predictor')
     # plt.suptitle('The Sum of Squares (Covariances)', x=0.514, y=0.96, fontsize=10)
     # plt.legend(loc='upper left')
-    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
-    # label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+    # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    # label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+    label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
     plt.xticks(x, label)
     plt.xlabel('index of predictors', fontsize=12)
     plt.ylabel('R2 value', fontsize=12)
@@ -460,6 +481,7 @@ def getMostPredictorToRegSS(data, response):
     plt.bar(x, R2_vec)
     plt.show()
     # plt.savefig('figure_01.png')
+
     '''
 
     return R2_max_index
@@ -491,15 +513,16 @@ def getInitDataMatrix(data, response, alpha_value):
 
         return getInitDataMatrix(z, y, alpha)
 
-
-# initData = getInitDataMatrix(Z, Y, 0.05)
-# print(initData.astype(int))
-# print(Z.astype(int))
-
+'''
+alpha = 0.05
+init_Data = getInitDataMatrix(Z, Y, alpha)
+print(init_Data.astype(int))
+print(Z.astype(int))
+'''
 
 def getUpdatedDataMatrix(data, init_data, response, alpha_value):
     z_int=[]; z_temp=[]; z_updated=[]; z_new=[]; z=[]; y=[]; regSS_vec=[]
-    index_vec=[]
+    index_vec=[]; RegSS_vec = []
 
     temp=0; max_index=0; alpha=0; check1=False; check2=False; isEqual=False
 
@@ -546,6 +569,7 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
             # print('z_temp: ')
             # print(z_temp.astype(int))
             # print('regSS: ',regSS, i)
+            RegSS_vec.append(regSS)
 
             if  regSS > temp:
 
@@ -554,20 +578,34 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
 
             z_temp=[]
 
-        print('max_index: ', max_index)
+        print('max_index: ', max_index+1)
         print('Predictor having Max RegSS:')
         print(z_updated[:,max_index].astype(int))
+        print('Regression SS: ')
+        print(RegSS_vec)
 
         z1 = np.column_stack((z_int, z_updated[:,max_index]))
 
-        test = isPredictorSignificant(z_int, z1, y, alpha)
+        test = isPredictorSignificant(z1, z_int, y, alpha)
 
         print(z1.astype(int))
 
-            # print('test:', test)
-            # print('Yo, here?', z_updated.shape[1])
-            # print(z.astype(int))
-
+        '''
+        plt.title('Regression Sum of Squares (Reg SS)')
+        # plt.suptitle('The Sum of Squares (Covariances)', x=0.514, y=0.96, fontsize=10)
+        # plt.legend(loc='upper left')
+        x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+        # label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+        plt.xticks(x, label)
+        plt.xlabel('index of predictors', fontsize=12)
+        plt.ylabel('Reg SS value', fontsize=12)
+        # plt.plot(x, RegSS_vec)
+        plt.bar(x, RegSS_vec)
+        plt.show()
+        # plt.savefig('figure_01.png')
+        '''
 
         if test == True:
 
@@ -576,8 +614,6 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
             return z_new
 
         else:
-
-
 
             print('Find a another predictor.')
 
@@ -603,14 +639,15 @@ def getUpdatedDataMatrix(data, init_data, response, alpha_value):
 
             return getUpdatedDataMatrix(z, z_int, y, alpha)
 
-
-# alpha = 0.05
-# init_data = getInitDataMatrix(Z, Y, alpha)
-# # print('init_data:')
-# # print(init_data.astype(int))
-# updated_data = getUpdatedDataMatrix(Z, init_data, Y, alpha)
-# print(updated_data.astype(int))
-
+'''
+alpha = 0.05
+init_data = getInitDataMatrix(Z, Y, alpha)
+print('init_data:')
+print(init_data.astype(int))
+updated_data = getUpdatedDataMatrix(Z, init_data, Y, alpha)
+print('Updated_data: ')
+print(updated_data.astype(int))
+'''
 
 def getPredictorValidation(data, response, alpha_value): #current_data
 
@@ -632,6 +669,8 @@ def getPredictorValidation(data, response, alpha_value): #current_data
     print(z.astype(int))
 
     for i in range(1, p):
+
+        print('counting:', i)
         # print(i)
         zi = z[:,i]
 
@@ -673,9 +712,23 @@ def getPredictorValidation(data, response, alpha_value): #current_data
 
     return validation
 
-# print(getPredictorValidation(updatedDataMatrix, Y, alpha))
-
-
+# print('Validation: ')
+# updated_data = Z[:,[0, 12, 4]]
+# print(updated_data.astype(int))
+# validated_data = getPredictorValidation(updated_data, Y, 0.05)
+# print(validated_data[0].astype(int))
+'''
+Fs_vec = [2992084.06887, 3.8424531458]
+plt.title('F test with the level of 0.05')
+x = [1, 2]
+label = ['F', 'F_{1,n-3}(0.05)']
+plt.xticks(x, label)
+# plt.xlabel('index of predictors', fontsize=12)
+# plt.ylabel('R2 value', fontsize=12)
+# plt.plot(x, R2_vec)
+plt.bar(x, Fs_vec)
+plt.show()
+'''
 # isEqual = np.array_equal(z_int[:,i], z[:,j])
 
 def getStepwisePredictors(data, init_data, response, alpha_value): #significant
@@ -739,7 +792,7 @@ def getStepwisePredictors(data, init_data, response, alpha_value): #significant
 
 
 
-
+'''
 print('Z:')
 print(Z.astype(int))
 
@@ -755,29 +808,159 @@ print(updated_model.astype(int))
 
 beta_hat = getBetaHat(Z, Y)
 # print(beta_hat.astype(float))
-
-
-
-'''
-print('New Z: ')
-# new_z = Z[:,[0, 3, 5, 6]]
-
-new_z = Z[:,[0, 3, 5]]
-# new_z = Z[:,[0, 3, 6]]
-# new_z = Z[:,[0, 5, 6]]
-
-# new_z = Z[:,[0, 3]]
-# new_z = Z[:,[0, 5]]
-# new_z = Z[:,[0, 6]]
-
-print(new_z.astype(int))
-
-print(getAdjustedRatioRegressionSS(new_z, Y))
-print(getAIC(new_z, Y))
-# getCp(new_z, data_subset, Y)
 '''
 
+'''
+f_vec = [353011.317149, 4837774.80285, 8689232.45902, 657637.479477, 3209017.13757, 11766373.7082,
+1696902.75433, 11781374.9159, 11782783.5642, 4706110.61658, 6932575.86162]
+plt.title('F-values')
+# plt.suptitle('The Sum of Squares (Covariances)', x=0.514, y=0.96, fontsize=10)
+# plt.legend(loc='upper left')
+x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+# x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+label = ['12', '4', '6', '10', '2', '3', '11', '7', '5', '8', '9']
+# label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+plt.xticks(x, label)
+plt.xlabel('index of predictors', fontsize=12)
+plt.ylabel('F-value', fontsize=12)
+# plt.plot(x, RegSS_vec)
+plt.bar(x, f_vec)
+plt.show()
+# plt.savefig('figure_01.png'
+'''
 
+
+
+z1 = Z[:,[0, 6, 3, 7, 5]]
+z2 = Z[:,[0, 4, 2, 11, 8]]
+z3 = Z[:,[0, 12, 3, 8, 9]]
+z4 = Z[:,[0, 4, 2, 7, 5]]
+z5 = Z[:,[0, 12, 10, 2, 11]]
+z6 = Z[:,[0, 12, 4, 3, 5]]
+z7 = Z[:,[0, 10, 2, 11, 8]]
+z8 = Z[:,[0, 2, 3, 7, 8]]
+z9 = Z[:,[0, 12, 4, 6, 10]]
+z10 = Z[:,[0, 12, 4, 6, 2]]
+z11 = Z[:,[0, 12, 4, 10, 2]]
+z12 = Z[:,[0, 12, 4, 2, 3]]
+# AIC_1 = getAIC(z1, Y)
+# AIC_2 = getAIC(z2, Y)
+# AIC_3 = getAIC(z3, Y)
+# AIC_4 = getAIC(z4, Y)
+# AIC_5 = getAIC(z5, Y)
+# AIC_6 = getAIC(z6, Y)
+# AIC_7 = getAIC(z7, Y)
+# AIC_8 = getAIC(z8, Y)
+# AIC_9 = getAIC(z9, Y)
+# AIC_10 = getAIC(z10, Y)
+# AIC_11 = getAIC(z11, Y)
+# AIC_12 = getAIC(z12, Y)
+# print(AIC_1)
+# print(AIC_2)
+# print(AIC_3)
+# print(AIC_4)
+# print(AIC_5)
+# print(AIC_6)
+# print(AIC_7)
+# print(AIC_8)
+# print(AIC_9)
+# print(AIC_10)
+# print(AIC_11)
+# print(AIC_12)
+AIC_vec = [65774.2950079, 44223.5133876, 20348.0528955, 54668.5972225, 21382.7584556, 7027.51549561, 28658.8018197, 56240.6990775, 3632.89935377, 4887.76100594, 6136.96139745, 7184.34811241]
+# plt.title('AIC Values')
+# # plt.suptitle('The Sum of Squares (Covariances)', x=0.514, y=0.96, fontsize=10)
+# # plt.legend(loc='upper left')
+# # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+# x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+# label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+# plt.xticks(x, label)
+# plt.xlabel('Index of Subset', fontsize=12)
+# plt.ylabel('AIC value', fontsize=12)
+# # plt.plot(x, RegSS_vec)
+# plt.bar(x, AIC_vec)
+# plt.show()
+# plt.savefig('figure_01.png'
+# r2_1 = getAdjustedRatioRegressionSS(z1, Y)
+# r2_2 = getAdjustedRatioRegressionSS(z2, Y)
+# r2_3 = getAdjustedRatioRegressionSS(z3, Y)
+# r2_4 = getAdjustedRatioRegressionSS(z4, Y)
+# r2_5 = getAdjustedRatioRegressionSS(z5, Y)
+# r2_6 = getAdjustedRatioRegressionSS(z6, Y)
+# r2_7 = getAdjustedRatioRegressionSS(z7, Y)
+# r2_8 = getAdjustedRatioRegressionSS(z8, Y)
+# r2_9 = getAdjustedRatioRegressionSS(z9, Y)
+# r2_9 = getAdjustedRatioRegressionSS(z9, Y)
+# r2_10 = getAdjustedRatioRegressionSS(z10, Y)
+# r2_11 = getAdjustedRatioRegressionSS(z11, Y)
+# r2_12 = getAdjustedRatioRegressionSS(z12, Y)
+# print(r2_1)
+# print(r2_2)
+# print(r2_3)
+# print(r2_4)
+# print(r2_5)
+# print(r2_6)
+# print(r2_7)
+# print(r2_8)
+# print(r2_9)
+# print(r2_9)
+# print(r2_10)
+# print(r2_11)
+# print(r2_12)
+r2_vec = [0.34079337407, 0.934118023918, 0.994864126101, 0.798829975406, 0.994263605242, 0.998763036734, 0.987516157422, 0.76202541212, 0.999139403518, 0.999015892507, 0.998875336113, 0.998742129275]
+# plt.title('Adjusted_R2 Values')
+# # plt.suptitle('The Sum of Squares (Covariances)', x=0.514, y=0.96, fontsize=10)
+# # plt.legend(loc='upper left')
+# # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+# x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+# label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+# plt.xticks(x, label)
+# plt.xlabel('Index of Subset', fontsize=12)
+# plt.ylabel('Adjusted_R2 value', fontsize=12)
+# # plt.plot(x, RegSS_vec)
+# plt.bar(x, r2_vec)
+# plt.show()
+
+# Cp_1 = getCp(Z, z1, Y)
+# Cp_2 = getCp(Z, z2, Y)
+# Cp_3 = getCp(Z, z3, Y)
+# Cp_4 = getCp(Z, z4, Y)
+# Cp_5 = getCp(Z, z5, Y)
+# Cp_6 = getCp(Z, z6, Y)
+# Cp_7 = getCp(Z, z7, Y)
+# Cp_8 = getCp(Z, z8, Y)
+# Cp_9 = getCp(Z, z9, Y)
+# Cp_9 = getCp(Z, z9, Y)
+# Cp_10 = getCp(Z, z10, Y)
+# Cp_11 = getCp(Z, z11, Y)
+# Cp_12 = getCp(Z, z12, Y)
+
+# print(Cp_1)
+# print(Cp_2)
+# print(Cp_3)
+# print(Cp_4)
+# print(Cp_5)
+# print(Cp_6)
+# print(Cp_7)
+# print(Cp_8)
+# print(Cp_9)
+# print(Cp_9)
+# print(Cp_10)
+# print(Cp_11)
+# print(Cp_12)
+Cp_vec = [-8499.32300592, -9247.88110878, -9324.52041075, -9077.19720923, -9323.76277367, -9329.43940602, -9315.24996919, -9030.76334865, -9329.91424287, -9329.75841727, -9329.58108665, -9329.41302848]
+plt.title('Cp Values')
+# plt.suptitle('The Sum of Squares (Covariances)', x=0.514, y=0.96, fontsize=10)
+# plt.legend(loc='upper left')
+# x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+label = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+plt.xticks(x, label)
+plt.xlabel('Index of Subset', fontsize=12)
+plt.ylabel('Cp value', fontsize=12)
+# plt.plot(x, RegSS_vec)
+plt.bar(x, Cp_vec)
+plt.show()
 
 
 

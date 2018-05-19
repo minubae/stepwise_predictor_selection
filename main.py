@@ -33,14 +33,14 @@ from numpy import dot
 import matplotlib.pyplot as plt
 
 begin = 1
-end_row = 9358
-# end_row = 30
+# end_row = 9358
+end_row = 30
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
 
-end_col = 15
-# end_col = 14
+# end_col = 15
+end_col = 14
 
 csv_url = 'AirQualityUCI/AirQualityUCI.csv'
 data = np.genfromtxt(csv_url, delimiter=';', usecols = range(2,end_col), skip_header = 1, dtype=float, max_rows = end_row)
@@ -749,7 +749,7 @@ def getStepwisePredictors(data, init_data, response, alpha_value): #significant
     print(new_data.astype(int))
     print(z.astype(int))
 
-    new_r = new_data.shape[1]-1
+    new_r = new_data.shape[1]
     print('new_r:', new_r)
 
 
@@ -792,7 +792,7 @@ def getStepwisePredictors(data, init_data, response, alpha_value): #significant
 
 
 
-'''
+# '''
 print('Z:')
 print(Z.astype(int))
 
@@ -805,7 +805,7 @@ updated_model = getStepwisePredictors(Z, init_data, Y, alpha)
 print('Stepwise Predictors: ')
 print(updated_model.astype(int))
 
-
+'''
 beta_hat = getBetaHat(Z, Y)
 # print(beta_hat.astype(float))
 '''
@@ -830,7 +830,7 @@ plt.show()
 '''
 
 
-
+'''
 z1 = Z[:,[0, 6, 3, 7, 5]]
 z2 = Z[:,[0, 4, 2, 11, 8]]
 z3 = Z[:,[0, 12, 3, 8, 9]]
@@ -961,7 +961,7 @@ plt.ylabel('Cp value', fontsize=12)
 # plt.plot(x, RegSS_vec)
 plt.bar(x, Cp_vec)
 plt.show()
-
+'''
 
 
 

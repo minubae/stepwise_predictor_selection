@@ -33,14 +33,14 @@ from numpy import dot
 import matplotlib.pyplot as plt
 
 begin = 1
-# end_row = 9358
-end_row = 30
+end_row = 9358
+# end_row = 30
 ###################################################################################
 # Import data from a CSV file: 'AirQualityUCI/AirQualityUCI.csv'
 ###################################################################################
 
-# end_col = 15
-end_col = 14
+end_col = 15
+# end_col = 14
 
 csv_url = 'AirQualityUCI/AirQualityUCI.csv'
 data = np.genfromtxt(csv_url, delimiter=';', usecols = range(2,end_col), skip_header = 1, dtype=float, max_rows = end_row)
@@ -783,6 +783,9 @@ def getStepwisePredictors(data, init_data, response, alpha_value): #significant
     leaves = validation[2]
 
     if new_r == up_r and leaves == 0:
+
+        print('Which Predictors are the best?')
+        print(index_vec)
 
         return checked_data
 

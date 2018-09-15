@@ -1,8 +1,8 @@
 ###########################################################################################################################
 # Title: Stepwise Predictors Selection Method
-# Course: Math B7800 - Advanced Mathematical Statistics II, Spring 2018
+# Course: Advanced Mathematical Statistics II, Spring 2018
 # Author: Minwoo Bae (minubae.math@gmail.com)
-# Institute: The Department of Mathematics, City College of New York, CUNY
+# Institute: The Department of Mathematics, CUNY
 
 # Project Description:
 # Consider the Benzene concentration as response Y variable and others as predictors.
